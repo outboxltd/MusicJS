@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>סינתיזייזר מגניב</title>
+    <style>
+        /* סגנון כללי */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            color: white;
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1 {
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            margin-bottom: 30px;
+        }
+
+        /* עיצוב הקונטיינר הראשי */
+        .synth-container {
+            background-color: rgba(0, 0, 0, 0.7);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+            width: 90%;
+            max-width: 800px;
+        }
+
+        /* עיצוב המקלדת */
+        .keyboard {
+            display: flex;
+            margin: 20px 0;
+            justify-content: center;
+        }
+
+        .key {
+            width: 40px;
+            height: 150px;
+            background-color: white;
+            margin: 0 2px;
+            border-radius: 0 0 5px 5px;
+            cursor: pointer;
+            position: relative;
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+            transition: background-color 0.1s;
+        }
+
+        .key.black {
+            background-color: #333;
+            height: 90px;
+            width: 30px;
+            margin: 0 -15px;
+            z-index: 1;
+        }
+
+        .key.active {
+            background-color: #64b5f6;
+        }
+
+        .key.black.active {
+            background-color: #1976d2;
+        }
+
+        .key span {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #333;
+            font-weight: bold;
+        }
+
+        .key.black span {
+            color: white;
+        }
+
+        /* עיצוב הבקרות */
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .control-group {
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+        }
+
+        .control-group h3 {
+            margin-top: 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+            padding-bottom: 10px;
+        }
+
+        .control {
+            margin: 10px 0;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 8px;
+            -webkit-appearance: none;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 5px;
+            outline: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            background: #64b5f6;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        select {
+            width: 100%;
+            padding: 8px;
+            border-radius: 5px;
+            background-color: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+        }
+
+        /* עיצוב הוויזואלייזר */
+        .visualizer {
+            width: 100%;
+            height: 100px;
+            background-color: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 20px;
+        }
+
+        canvas {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* כפתור הקלטה */
+        .record-btn {
+            background-color: #f44336;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 50px;
+            cursor: pointer;
+            margin-top: 20px;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .record-btn:hover {
+            background-color: #d32f2f;
+            transform: scale(1.05);
+        }
+
+        .record-btn.recording {
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(244, 67, 54, 0.7);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(244, 67, 54, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(244, 67, 54, 0);
+            }
+        }
+
+        /* עיצוב רשימת ההקלטות */
+        .recordings {
+            margin-top: 20px;
+            width: 100%;
+        }
+
+        .recording-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+
+        .recording-item button {
+            background-color: transparent;
+            border: 1px solid white;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+            margin-left: 5px;
+        }
+
+        .recording-item button:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <h1>סינתיזייזר מגניב</h1>
+    
+    <div class="synth-container">
+        <!-- בקרות הסינתיזייזר -->
+        <div class="controls">
+            <!-- בקרת סוג הגל -->
+            <div class="control-group">
+                <h3>סוג גל</h3>
+                <div class="control">
+                    <select id="waveform">
+                        <option value="sine">Sine (סינוס)</option>
+                        <option value="square">Square (ריבוע)</option>
+                        <option value="sawtooth">Sawtooth (משור)</option>
+                        <option value="triangle">Triangle (משולש)</option>
+                    </select>
+                </div>
+            </div>
+            
+            <!-- בקרות מעטפת -->
+            <div class="control-group">
+                <h3>מעטפת (ADSR)</h3>
+                <div class="control">
+                    <label for="attack">Attack (התקפה)</label>
+                    <input type="range" id="attack" min="0" max="2" step="0.01" value="0.1">
+                </div>
+                <div class="control">
+                    <label for="decay">Decay (דעיכה)</label>
+                    <input type="range" id="decay" min="0" max="2" step="0.01" value="0.2">
+                </div>
+                <div class="control">
+                    <label for="sustain">Sustain (קיום)</label>
+                    <input type="range" id="sustain" min="0" max="1" step="0.01" value="0.7">
+                </div>
+                <div class="control">
+                    <label for="release">Release (שחרור)</label>
+                    <input type="range" id="release" min="0" max="3" step="0.01" value="0.5">
+                </div>
+            </div>
+            
+            <!-- בקרות אפקטים -->
+            <div class="control-group">
+                <h3>אפקטים</h3>
+                <div class="control">
+                    <label for="filter">Filter Cutoff (חיתוך פילטר)</label>
+                    <input type="range" id="filter" min="20" max="20000" step="1" value="5000">
+                </div>
+                <div class="control">
+                    <label for="resonance">Resonance (תהודה)</label>
+                    <input type="range" id="resonance" min="0" max="30" step="0.1" value="5">
+                </div>
+                <div class="control">
+                    <label for="delay">Delay (הד)</label>
+                    <input type="range" id="delay" min="0" max="1" step="0.01" value="0.3">
+                </div>
+            </div>
+        </div>
+        
+        <!-- מקלדת הסינתיזייזר -->
+        <div class="keyboard">
+            <div class="key" data-note="C4"><span>A</span></div>
+            <div class="key black" data-note="C#4"><span>W</span></div>
+            <div class="key" data-note="D4"><span>S</span></div>
+            <div class="key black" data-note="D#4"><span>E</span></div>
+            <div class="key" data-note="E4"><span>D</span></div>
+            <div class="key" data-note="F4"><span>F</span></div>
+            <div class="key black" data-note="F#4"><span>T</span></div>
+            <div class="key" data-note="G4"><span>G</span></div>
+            <div class="key black" data-note="G#4"><span>Y</span></div>
+            <div class="key" data-note="A4"><span>H</span></div>
+            <div class="key black" data-note="A#4"><span>U</span></div>
+            <div class="key" data-note="B4"><span>J</span></div>
+            <div class="key" data-note="C5"><span>K</span></div>
+        </div>
+        
+        <!-- ויזואלייזר -->
+        <div class="visualizer">
+            <canvas id="visualizer-canvas"></canvas>
+        </div>
+        
+        <!-- כפתור הקלטה -->
+        <button class="record-btn" id="record">הקלט</button>
+        
+        <!-- רשימת הקלטות -->
+        <div class="recordings" id="recordings-list">
+            <h3>הקלטות</h3>
+            <!-- הקלטות יתווספו כאן באמצעות JavaScript -->
+        </div>
+    </div>
+
+    <script>
+        // ===== הסבר: יצירת אודיו קונטקסט =====
+        // AudioContext הוא האובייקט המרכזי ב-Web Audio API שמאפשר לנו ליצור ולעבד צלילים
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        
+        // ===== הסבר: הגדרת משתנים גלובליים =====
+        let oscillator = null;      // אובייקט שיוצר את הגל הבסיסי
+        let gainNode = null;        // בקרת עוצמה
+        let filterNode = null;      // פילטר
+        let delayNode = null;       // אפקט הד
+        let analyser = null;        // אנלייזר לויזואלייזר
+        let activeNotes = {};       // מעקב אחר תווים פעילים
+        let isRecording = false;    // האם מקליטים כרגע
+        let recordingStartTime = 0; // זמן תחילת ההקלטה
+        let recordedNotes = [];     // מערך התווים שהוקלטו
+        let recordings = [];        // מערך ההקלטות השמורות
+        
+        // מיפוי מקשי המקלדת לתווים
+        const keyboardMap = {
+            'a': 'C4', 'w': 'C#4', 's': 'D4', 'e': 'D#4', 'd': 'E4', 'f': 'F4',
+            't': 'F#4', 'g': 'G4', 'y': 'G#4', 'h': 'A4', 'u': 'A#4', 'j': 'B4', 'k': 'C5'
+        };
+        
+        // מיפוי תווים לתדרים
+        const noteFrequencies = {
+            'C4': 261.63, 'C#4': 277.18, 'D4': 293.66, 'D#4': 311.13, 'E4': 329.63,
+            'F4': 349.23, 'F#4': 369.99, 'G4': 392.00, 'G#4': 415.30, 'A4': 440.00,
+            'A#4': 466.16, 'B4': 493.88, 'C5': 523.25
+        };
+
+        // ===== הסבר: הגדרת פונקציות עזר =====
+        
+        // פונקציה ליצירת צליל
+        function createSound() {
+            // יצירת אוסילטור (מחולל גלים)
+            oscillator = audioContext.createOscillator();
+            oscillator.type = document.getElementById('waveform').value;
+            
+            // יצירת בקרת עוצמה
+            gainNode = audioContext.createGain();
+            gainNode.gain.value = 0;
+            
+            // יצירת פילטר
+            filterNode = audioContext.createBiquadFilter();
+            filterNode.type = 'lowpass';
+            filterNode.frequency.value = document.getElementById('filter').value;
+            filterNode.Q.value = document.getElementById('resonance').value;
+            
+            // יצירת אפקט הד
+            delayNode = audioContext.createDelay();
+            delayNode.delayTime.value = document.getElementById('delay').value;
+            const delayFeedback = audioContext.createGain();
+            delayFeedback.gain.value = 0.4;
+            
+            // יצירת אנלייזר לויזואלייזר
+            analyser = audioContext.createAnalyser();
+            analyser.fftSize = 2048;
+            
+            // חיבור כל הרכיבים יחד
+            oscillator.connect(gainNode);
+            gainNode.connect(filterNode);
+            filterNode.connect(analyser);
+            filterNode.connect(delayNode);
+            delayNode.connect(delayFeedback);
+            delayFeedback.connect(delayNode);
+            delayNode.connect(analyser);
+            analyser.connect(audioContext.destination);
+            
+            // התחלת האוסילטור
+            oscillator.start();
+        }
+        
+        // פונקציה להפעלת תו
+        function playNote(note) {
+            if (activeNotes[note]) return; // אם התו כבר פעיל, לא לעשות כלום
+            
+            // אם אין אוסילטור פעיל, ליצור אחד
+            if (!oscillator) {
+                createSound();
+            }
+            
+            // עדכון תדר האוסילטור
+            oscillator.frequency.setValueAtTime(noteFrequencies[note], audioContext.currentTime);
+            
+            // הפעלת מעטפת ADSR
+            const attackTime = parseFloat(document.getElementById('attack').value);
+            const decayTime = parseFloat(document.getElementById('decay').value);
+            const sustainLevel = parseFloat(document.getElementById('sustain').value);
+            
+            gainNode.gain.cancelScheduledValues(audioContext.currentTime);
+            gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+            gainNode.gain.linearRampToValueAtTime(1, audioContext.currentTime + attackTime);
+            gainNode.gain.linearRampToValueAtTime(sustainLevel, audioContext.currentTime + attackTime + decayTime);
+            
+            // סימון התו כפעיל
+            activeNotes[note] = {
+                startTime: audioContext.currentTime,
+                gainNode: gainNode
+            };
+            
+            // הוספת התו להקלטה אם מקליטים
+            if (isRecording) {
+                recordedNotes.push({
+                    note: note,
+                    startTime: audioContext.currentTime - recordingStartTime,
+                    endTime: null // יעודכן בהמשך
+                });
+            }
+            
+            // עדכון המראה של המקש
+            document.querySelector(`.key[data-note="${note}"]`).classList.add('active');
+        }
+        
+        // פונקציה לעצירת תו
+        function stopNote(note) {
+            if (!activeNotes[note]) return; // אם התו לא פעיל, לא לעשות כלום
+            
+            // הפעלת שלב השחרור במעטפת
+            const releaseTime = parseFloat(document.getElementById('release').value);
+            const currentGain = activeNotes[note].gainNode.gain.value;
+            
+            gainNode.gain.cancelScheduledValues(audioContext.currentTime);
+            gainNode.gain.setValueAtTime(currentGain, audioContext.currentTime);
+            gainNode.gain.linearRampToValueAtTime(0, audioContext.currentTime + releaseTime);
+            
+            // עדכון זמן הסיום בהקלטה
+            if (isRecording) {
+                const noteIndex = recordedNotes.findIndex(
+                    n => n.note === note && n.endTime === null
+                );
+                if (noteIndex !== -1) {
+                    recordedNotes[noteIndex].endTime = audioContext.currentTime - recordingStartTime;
+                }
+            }
+            
+            // הסרת סימון התו כפעיל
+            setTimeout(() => {
+                delete activeNotes[note];
+                
+                // אם אין תווים פעילים, לעצור את האוסילטור
+                if (Object.keys(activeNotes).length === 0 && oscillator) {
+                    oscillator.stop();
+                    oscillator.disconnect();
+                    oscillator = null;
+                    gainNode = null;
+                    filterNode = null;
+                    delayNode = null;
+                }
+            }, releaseTime * 1000);
+            
+            // עדכון המראה של המקש
+            document.querySelector(`.key[data-note="${note}"]`).classList.remove('active');
+        }
+        
+        // פונקציה להתחלת הקלטה
+        function startRecording() {
+            isRecording = true;
+            recordingStartTime = audioContext.currentTime;
+            recordedNotes = [];
+            document.getElementById('record').textContent = 'עצור הקלטה';
+            document.getElementById('record').classList.add('recording');
+        }
+        
+        // פונקציה לעצירת הקלטה
+        function stopRecording() {
+            isRecording = false;
+            const recordingDuration = audioContext.currentTime - recordingStartTime;
+            
+            // שמירת ההקלטה
+            recordings.push({
+                notes: [...recordedNotes],
+                duration: recordingDuration,
+                name: `הקלטה ${recordings.length + 1}`
+            });
+            
+            // עדכון רשימת ההקלטות
+            updateRecordingsList();
+            
+            document.getElementById('record').textContent = 'הקלט';
+            document.getElementById('record').classList.remove('recording');
+        }
+        
+        // פונקציה לניגון הקלטה
+        function playRecording(index) {
+            const recording = recordings[index];
+            const startTime = audioContext.currentTime;
+            
+            // ניגון כל התווים בהקלטה
+            recording.notes.forEach(note => {
+                // הפעלת התו בזמן המתאים
+                setTimeout(() => {
+                    playNote(note.note);
+                }, note.startTime * 1000);
+                
+                // עצירת התו בזמן המתאים
+                if (note.endTime !== null) {
+                    setTimeout(() => {
+                        stopNote(note.note);
+                    }, note.endTime * 1000);
+                }
+            });
+        }
+        
+        // פונקציה לעדכון רשימת ההקלטות
+        function updateRecordingsList() {
+            const recordingsList = document.getElementById('recordings-list');
+            
+            // ניקוי הרשימה
+            while (recordingsList.children.length > 1) {
+                recordingsList.removeChild(recordingsList.lastChild);
+            }
+            
+            // הוספת כל ההקלטות לרשימה
+            recordings.forEach((recording, index) => {
+                const recordingItem = document.createElement('div');
+                recordingItem.className = 'recording-item';
+                
+                const nameSpan = document.createElement('span');
+                nameSpan.textContent = `${recording.name} (${recording.duration.toFixed(2)} שניות)`;
+                
+                const playButton = document.createElement('button');
+                playButton.textContent = 'נגן';
+                playButton.addEventListener('click', () => playRecording(index));
+                
+                const deleteButton = document.createElement('button');
+                deleteButton.textContent = 'מחק';
+                deleteButton.addEventListener('click', () => {
+                    recordings.splice(index, 1);
+                    updateRecordingsList();
+                });
+                
+                recordingItem.appendChild(nameSpan);
+                recordingItem.appendChild(playButton);
+                recordingItem.appendChild(deleteButton);
+                
+                recordingsList.appendChild(recordingItem);
+            });
+        }
+        
+        // פונקציה לעדכון הויזואלייזר
+        function updateVisualizer() {
+            if (!analyser) return;
+            
+            const canvas = document.getElementById('visualizer-canvas');
+            const canvasCtx = canvas.getContext('2d');
+            const width = canvas.width;
+            const height = canvas.height;
+            
+            // התאמת גודל הקנבס לגודל האלמנט
+            canvas.width = canvas.clientWidth;
+            canvas.height = canvas.clientHeight;
+            
+            const bufferLength = analyser.frequencyBinCount;
+            const dataArray = new Uint8Array(bufferLength);
+            
+            function draw() {
+                requestAnimationFrame(draw);
+                
+                // קבלת נתוני התדר
+                analyser.getByteFrequencyData(dataArray);
+                
+                // ניקוי הקנבס
+                canvasCtx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+                canvasCtx.fillRect(0, 0, canvas.width, canvas.height);
+                
+                // ציור הויזואלייזר
+                const barWidth = (canvas.width / bufferLength) * 2.5;
+                let x = 0;
+                
+                for (let i = 0; i < bufferLength; i++) {
+                    const barHeight = dataArray[i] / 255 * canvas.height;
+                    
+                    // צביעת העמודות בצבעים שונים לפי התדר
+                    const hue = i / bufferLength * 360;
+                    canvasCtx.fillStyle = `hsl(${hue}, 100%, 50%)`;
+                    canvasCtx.fillRect(x, canvas.height - barHeight, barWidth, barHeight);
+                    
+                    x += barWidth + 1;
+                    if (x > canvas.width) break;
+                }
+            }
+            
+            draw();
+        }
+        
+        // ===== הסבר: הגדרת מאזיני אירועים =====
+        
+        // מאזיני אירועים למקשי המקלדת
+        document.querySelectorAll('.key').forEach(key => {
+            // לחיצה על מקש עם העכבר
+            key.addEventListener('mousedown', () => {
+                const note = key.getAttribute('data-note');
+                playNote(note);
+            });
+            
+            // שחרור מקש העכבר
+            key.addEventListener('mouseup', () => {
+                const note = key.getAttribute('data-note');
+                stopNote(note);
+            });
+            
+            // יציאה מהמקש עם העכבר
+            key.addEventListener('mouseleave', () => {
+                const note = key.getAttribute('data-note');
+                if (activeNotes[note]) {
+                    stopNote(note);
+                }
+            });
+        });
+        
+        // מאזיני אירועים למקלדת המחשב
+        document.addEventListener('keydown', (event) => {
+            // בדיקה אם המקש נמצא במיפוי
+            const key = event.key.toLowerCase();
+            if (keyboardMap[key] && !event.repeat) {
+                playNote(keyboardMap[key]);
+            }
+        });
+        
+        document.addEventListener('keyup', (event) => {
+            // בדיקה אם המקש נמצא במיפוי
+            const key = event.key.toLowerCase();
+            if (keyboardMap[key]) {
+                stopNote(keyboardMap[key]);
+            }
+        });
+        
+        // מאזיני אירועים לבקרות
+        document.getElementById('waveform').addEventListener('change', () => {
+            if (oscillator) {
+                oscillator.type = document.getElementById('waveform').value;
+            }
+        });
+        
+        document.getElementById('filter').addEventListener('input', () => {
+            if (filterNode) {
+                filterNode.frequency.value = document.getElementById('filter').value;
+            }
+        });
+        
+        document.getElementById('resonance').addEventListener('input', () => {
+            if (filterNode) {
+                filterNode.Q.value = document.getElementById('resonance').value;
+            }
+        });
+        
+        document.getElementById('delay').addEventListener('input', () => {
+            if (delayNode) {
+                delayNode.delayTime.value = document.getElementById('delay').value;
+            }
+        });
+        
+        // מאזין אירועים לכפתור ההקלטה
+        document.getElementById('record').addEventListener('click', () => {
+            if (isRecording) {
+                stopRecording();
+            } else {
+                startRecording();
+            }
+        });
+        
+        // התחלת הויזואלייזר
+        updateVisualizer();
+        
+        // הפעלת האודיו קונטקסט בלחיצה ראשונה (נדרש בדפדפנים חדשים)
+        document.addEventListener('click', () => {
+            if (audioContext.state === 'suspended') {
+                audioContext.resume();
+            }
+        }, { once: true });
+    </script>
+</body>
+</html>
