@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>סינתיזייזר מגניב - 2 אוקטבות</title>
+    <!-- קישור לקובץ CSS חיצוני -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <h1>סינתיזייזר מגניב - 2 אוקטבות</h1>
+    
+    <div class="synth-container">
+        <!-- בקרות הסינתיזייזר -->
+        <div class="controls">
+            <!-- בקרת סוג הגל -->
+            <div class="control-group">
+                <h3>סוג גל</h3>
+                <div class="control">
+                    <select id="waveform">
+                        <option value="sine">Sine (סינוס)</option>
+                        <option value="square">Square (ריבוע)</option>
+                        <option value="sawtooth">Sawtooth (משור)</option>
+                        <option value="triangle">Triangle (משולש)</option>
+                    </select>
+                </div>
+            </div>
+            
+            <!-- בקרות מעטפת -->
+            <div class="control-group">
+                <h3>מעטפת (ADSR)</h3>
+                <div class="control">
+                    <label for="attack">Attack (התקפה)</label>
+                    <input type="range" id="attack" min="0" max="2" step="0.01" value="0.1">
+                </div>
+                <div class="control">
+                    <label for="decay">Decay (דעיכה)</label>
+                    <input type="range" id="decay" min="0" max="2" step="0.01" value="0.2">
+                </div>
+                <div class="control">
+                    <label for="sustain">Sustain (קיום)</label>
+                    <input type="range" id="sustain" min="0" max="1" step="0.01" value="0.7">
+                </div>
+                <div class="control">
+                    <label for="release">Release (שחרור)</label>
+                    <input type="range" id="release" min="0" max="3" step="0.01" value="0.5">
+                </div>
+            </div>
+            
+            <!-- בקרות אפקטים -->
+            <div class="control-group">
+                <h3>אפקטים</h3>
+                <div class="control">
+                    <label for="filter">Filter Cutoff (חיתוך פילטר)</label>
+                    <input type="range" id="filter" min="20" max="20000" step="1" value="5000">
+                </div>
+                <div class="control">
+                    <label for="resonance">Resonance (תהודה)</label>
+                    <input type="range" id="resonance" min="0" max="30" step="0.1" value="5">
+                </div>
+                <div class="control">
+                    <label for="delay">Delay (הד)</label>
+                    <input type="range" id="delay" min="0" max="1" step="0.01" value="0.3">
+                </div>
+            </div>
+        </div>
+        
+        <!-- מקלדת הסינתיזייזר - 2 אוקטבות -->
+        <div class="keyboard">
+            <!-- אוקטבה ראשונה -->
+            <div class="octave-container">
+                <div class="octave-label">אוקטבה 3 (Z-M)</div>
+                <div class="octave">
+                    <div class="key" data-note="C3"><span>Z</span></div>
+                    <div class="key black" data-note="C#3"><span>S</span></div>
+                    <div class="key" data-note="D3"><span>X</span></div>
+                    <div class="key black" data-note="D#3"><span>D</span></div>
+                    <div class="key" data-note="E3"><span>C</span></div>
+                    <div class="key" data-note="F3"><span>V</span></div>
+                    <div class="key black" data-note="F#3"><span>G</span></div>
+                    <div class="key" data-note="G3"><span>B</span></div>
+                    <div class="key black" data-note="G#3"><span>H</span></div>
+                    <div class="key" data-note="A3"><span>N</span></div>
+                    <div class="key black" data-note="A#3"><span>J</span></div>
+                    <div class="key" data-note="B3"><span>M</span></div>
+                </div>
+            </div>
+            
+            <!-- אוקטבה שנייה -->
+            <div class="octave-container">
+                <div class="octave-label">אוקטבה 4 (Q-I)</div>
+                <div class="octave">
+                    <div class="key" data-note="C4"><span>Q</span></div>
+                    <div class="key black" data-note="C#4"><span>2</span></div>
+                    <div class="key" data-note="D4"><span>W</span></div>
+                    <div class="key black" data-note="D#4"><span>3</span></div>
+                    <div class="key" data-note="E4"><span>E</span></div>
+                    <div class="key" data-note="F4"><span>R</span></div>
+                    <div class="key black" data-note="F#4"><span>5</span></div>
+                    <div class="key" data-note="G4"><span>T</span></div>
+                    <div class="key black" data-note="G#4"><span>6</span></div>
+                    <div class="key" data-note="A4"><span>Y</span></div>
+                    <div class="key black" data-note="A#4"><span>7</span></div>
+                    <div class="key" data-note="B4"><span>U</span></div>
+                    <div class="key" data-note="C5"><span>I</span></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- ויזואלייזר -->
+        <div class="visualizer">
+            <canvas id="visualizer-canvas"></canvas>
+        </div>
+        
+        <!-- כפתור הקלטה -->
+        <button class="record-btn" id="record">הקלט</button>
+        
+        <!-- רשימת הקלטות -->
+        <div class="recordings" id="recordings-list">
+            <h3>הקלטות</h3>
+            <!-- הקלטות יתווספו כאן באמצעות JavaScript -->
+        </div>
+    </div>
+
+    <!-- קישור לקובץ JavaScript חיצוני -->
+    <script src="synthesizer.js"></script>
+    <script>
+        // הפעלת האפליקציה כשהדף נטען
+        document.addEventListener('DOMContentLoaded', initApp);
+    </script>
+</body>
+</html>

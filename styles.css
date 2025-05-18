@@ -1,0 +1,233 @@
+/* סגנון כללי */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+    color: white;
+    margin: 0;
+    padding: 20px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+h1 {
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    margin-bottom: 30px;
+}
+
+/* עיצוב הקונטיינר הראשי */
+.synth-container {
+    background-color: rgba(0, 0, 0, 0.7);
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+    width: 90%;
+    max-width: 1000px;
+}
+
+/* עיצוב המקלדת */
+.keyboard {
+    display: flex;
+    margin: 20px 0;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.octave {
+    display: flex;
+    position: relative;
+    margin: 0 5px;
+}
+
+.key {
+    width: 40px;
+    height: 150px;
+    background-color: white;
+    margin: 0 2px;
+    border-radius: 0 0 5px 5px;
+    cursor: pointer;
+    position: relative;
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+    transition: background-color 0.1s;
+}
+
+.key.black {
+    background-color: #333;
+    height: 90px;
+    width: 30px;
+    margin: 0 -15px;
+    z-index: 1;
+}
+
+.key.active {
+    background-color: #64b5f6;
+}
+
+.key.black.active {
+    background-color: #1976d2;
+}
+
+.key span {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: #333;
+    font-weight: bold;
+    font-size: 12px;
+}
+
+.key.black span {
+    color: white;
+}
+
+/* עיצוב הבקרות */
+.controls {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.control-group {
+    background-color: rgba(255, 255, 255, 0.1);
+    padding: 15px;
+    border-radius: 10px;
+}
+
+.control-group h3 {
+    margin-top: 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+    padding-bottom: 10px;
+}
+
+.control {
+    margin: 10px 0;
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+input[type="range"] {
+    width: 100%;
+    height: 8px;
+    -webkit-appearance: none;
+    appearance: none;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 5px;
+    outline: none;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 20px;
+    height: 20px;
+    background: #64b5f6;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+select {
+    width: 100%;
+    padding: 8px;
+    border-radius: 5px;
+    background-color: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: none;
+}
+
+/* עיצוב הוויזואלייזר */
+.visualizer {
+    width: 100%;
+    height: 100px;
+    background-color: rgba(0, 0, 0, 0.3);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-top: 20px;
+}
+
+canvas {
+    width: 100%;
+    height: 100%;
+}
+
+/* כפתור הקלטה */
+.record-btn {
+    background-color: #f44336;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 50px;
+    cursor: pointer;
+    margin-top: 20px;
+    font-weight: bold;
+    transition: all 0.3s;
+}
+
+.record-btn:hover {
+    background-color: #d32f2f;
+    transform: scale(1.05);
+}
+
+.record-btn.recording {
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(244, 67, 54, 0.7);
+    }
+    70% {
+        box-shadow: 0 0 0 10px rgba(244, 67, 54, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(244, 67, 54, 0);
+    }
+}
+
+/* עיצוב רשימת ההקלטות */
+.recordings {
+    margin-top: 20px;
+    width: 100%;
+}
+
+.recording-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: rgba(255, 255, 255, 0.1);
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 5px;
+}
+
+.recording-item button {
+    background-color: transparent;
+    border: 1px solid white;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 3px;
+    cursor: pointer;
+    margin-left: 5px;
+}
+
+.recording-item button:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* תוספת לגרסה עם 2 אוקטבות */
+.octave-label {
+    text-align: center;
+    font-size: 14px;
+    margin-bottom: 5px;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.octave-container {
+    display: flex;
+    flex-direction: column;
+    margin: 0 10px;
+}
